@@ -2,7 +2,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 4.0"
     }
   }
 }
@@ -17,10 +17,13 @@ resource "aws_s3_bucket" "screenshots" {
 
   lifecycle {
     ignore_changes = [
+      acceleration_status,
       cors_rule,
+      lifecycle_rule,
       logging,
       object_lock_configuration,
       replication_configuration,
+      request_payer,
       server_side_encryption_configuration,
       versioning,
       website,
@@ -29,21 +32,7 @@ resource "aws_s3_bucket" "screenshots" {
   }
 }
 
-# 1b. Disable lifecycle configuration (Terraform v5 requires explicit filter)
-resource "aws_s3_bucket_lifecycle_configuration" "screenshots" {
-  bucket = aws_s3_bucket.screenshots.id
-
-  rule {
-    id     = "disabled"
-    status = "Disabled"
-
-    filter {
-      prefix = ""
-    }
-  }
-}
-
-# 2. Allow public access (assignment requirement)
+# 2. Allow public access
 resource "aws_s3_bucket_public_access_block" "public_access" {
   bucket = aws_s3_bucket.screenshots.id
 
