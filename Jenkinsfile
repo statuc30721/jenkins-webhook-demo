@@ -8,7 +8,7 @@ pipeline {
 
     stages {
 
-        stage('Verify AWS Identity') {
+        stage('AWS Identity Check') {
             steps {
                 sh '''
                     echo "=== AWS Identity Check ==="
@@ -18,20 +18,10 @@ pipeline {
             }
         }
 
-        stage('Refresh AWS Credentials') {
-            steps {
-                sh '''
-                    echo "=== Refreshing Instance Profile Credentials ==="
-                    curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/
-                    echo "==============================================="
-                '''
-            }
-        }
-
         stage('Terraform Init') {
             steps {
                 sh '''
-                    cd terraform
+                    echo "=== TERRAFORM INIT ==="
                     terraform init -input=false
                 '''
             }
@@ -40,7 +30,7 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 sh '''
-                    cd terraform
+                    echo "=== TERRAFORM PLAN ==="
                     terraform plan -input=false
                 '''
             }
@@ -49,7 +39,7 @@ pipeline {
         stage('Terraform Apply') {
             steps {
                 sh '''
-                    cd terraform
+                    echo "=== TERRAFORM APPLY ==="
                     terraform apply -auto-approve -input=false
                 '''
             }
@@ -58,7 +48,7 @@ pipeline {
 
     post {
         always {
-            sh 'echo "Pipeline completed."'
+            echo "Pipeline completed."
         }
     }
 }
