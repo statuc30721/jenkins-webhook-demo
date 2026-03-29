@@ -17,16 +17,6 @@ resource "aws_s3_bucket" "screenshots" {
 
   lifecycle {
     ignore_changes = [
-      acceleration_status,
-      cors_rule,
-      lifecycle_rule,
-      logging,
-      object_lock_configuration,
-      replication_configuration,
-      request_payer,
-      server_side_encryption_configuration,
-      versioning,
-      website,
       tags
     ]
   }
@@ -64,7 +54,7 @@ resource "aws_s3_object" "screenshots" {
   for_each = fileset("${path.module}/screenshots", "*")
 
   bucket = aws_s3_bucket.screenshots.bucket
-  key    = "screenshots/${each.value}"
+  key    = each.value
   source = "${path.module}/screenshots/${each.value}"
   etag   = filemd5("${path.module}/screenshots/${each.value}")
 }

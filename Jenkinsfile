@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'APPLY', defaultValue: false, description: 'Apply Terraform changes')
+    }
+
     stages {
 
         stage('Clean Workspace') {
@@ -32,7 +36,7 @@ pipeline {
             steps {
                 sh '''
                     echo "Planning Terraform changes..."
-                    terraform plan -var="s3_bucket_name=${S3_BUCKET_NAME}"
+                    terraform plan -var-file="terraform.tfvars"
                 '''
             }
         }
@@ -44,13 +48,9 @@ pipeline {
             steps {
                 sh '''
                     echo "Applying Terraform changes..."
-                    terraform apply -auto-approve -var="s3_bucket_name=${S3_BUCKET_NAME}"
+                    terraform apply -auto-approve -var-file="terraform.tfvars"
                 '''
             }
         }
-    }
-
-    parameters {
-        booleanParam(name: 'APPLY', defaultValue: false, description: 'Apply Terraform changes')
     }
 }
