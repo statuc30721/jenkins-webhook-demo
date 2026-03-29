@@ -14,6 +14,22 @@ provider "aws" {
 # 1. Create the bucket
 resource "aws_s3_bucket" "screenshots" {
   bucket = var.s3_bucket_name
+
+  # Stop Terraform from querying S3 features you don't use
+  lifecycle {
+    ignore_changes = [
+      acceleration_status,
+      cors_rule,
+      lifecycle_rule,
+      logging,
+      object_lock_configuration,
+      replication_configuration,
+      request_payer,
+      server_side_encryption_configuration,
+      versioning,
+      website
+    ]
+  }
 }
 
 # 2. Allow public access (assignment requirement)
@@ -34,10 +50,10 @@ resource "aws_s3_bucket_policy" "public_read" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
+        Effect    = "Allow"
         Principal = "*"
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.screenshots.arn}/*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.screenshots.arn}/*"
       }
     ]
   })

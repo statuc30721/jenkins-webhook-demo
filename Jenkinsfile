@@ -20,21 +20,18 @@ pipeline {
             }
         }
 
-        stage('Terraform Init') {
+        stage('Terraform Deploy') {
             steps {
-                sh 'terraform init'
-            }
-        }
+                sh '''
+                    echo "Initializing Terraform..."
+                    terraform init
 
-        stage('Terraform Plan') {
-            steps {
-                sh 'terraform plan -var="s3_bucket_name=arma-proof-bucket"'
-            }
-        }
+                    echo "Planning Terraform changes..."
+                    terraform plan -var="s3_bucket_name=arma-proof-bucket"
 
-        stage('Deploy') {
-            steps {
-                sh 'terraform apply -auto-approve -var="s3_bucket_name=arma-proof-bucket"'
+                    echo "Applying Terraform changes..."
+                    terraform apply -auto-approve -var="s3_bucket_name=arma-proof-bucket"
+                '''
             }
         }
     }
