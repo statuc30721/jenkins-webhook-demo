@@ -17,19 +17,19 @@ resource "aws_s3_bucket" "screenshots" {
 
   # Prevent Terraform from querying S3 features you don't use
   lifecycle {
-    ignore_changes = [
-      cors_rule,
-      lifecycle_rule,
-      logging,
-      object_lock_configuration,
-      replication_configuration,
-      request_payer,
-      server_side_encryption_configuration,
-      versioning,
-      website,
-      tags
-    ]
-  }
+  ignore_changes = [
+    cors_rule,
+    lifecycle_rule,
+    logging,
+    object_lock_configuration,
+    replication_configuration,
+    server_side_encryption_configuration,
+    versioning,
+    website,
+    tags
+  ]
+}
+
 }
 
 # 2. Allow public access (assignment requirement)
