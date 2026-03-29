@@ -36,7 +36,7 @@ resource "aws_s3_bucket_public_access_block" "public_access" {
   restrict_public_buckets = false
 }
 
-# 3. Public read-only bucket policy (safe, minimal)
+# 3. Public read-only bucket policy
 resource "aws_s3_bucket_policy" "public_read" {
   bucket = aws_s3_bucket.screenshots.id
 
