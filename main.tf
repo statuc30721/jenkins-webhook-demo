@@ -18,7 +18,6 @@ resource "aws_s3_bucket" "screenshots" {
   lifecycle {
     ignore_changes = [
       cors_rule,
-      lifecycle_rule,
       logging,
       object_lock_configuration,
       replication_configuration,
@@ -30,13 +29,17 @@ resource "aws_s3_bucket" "screenshots" {
   }
 }
 
-# 1b. REQUIRED FOR TERRAFORM V5 — prevents lifecycle API calls
+# 1b. Disable lifecycle configuration (Terraform v5 requires explicit filter)
 resource "aws_s3_bucket_lifecycle_configuration" "screenshots" {
   bucket = aws_s3_bucket.screenshots.id
 
   rule {
     id     = "disabled"
     status = "Disabled"
+
+    filter {
+      prefix = ""
+    }
   }
 }
 
