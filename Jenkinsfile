@@ -8,6 +8,18 @@ pipeline {
             }
         }
 
+        stage('Debug Terraform Files') {
+            steps {
+                sh '''
+                    echo "=== Searching for main.tf in workspace ==="
+                    find . -name "main.tf" -maxdepth 4
+
+                    echo "=== Showing the main.tf Jenkins is using ==="
+                    cat $(find . -name "main.tf" -maxdepth 4 | head -n 1)
+                '''
+            }
+        }
+
         stage('Build') {
             steps {
                 sh 'echo Building...'
