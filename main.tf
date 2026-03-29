@@ -20,9 +20,13 @@ resource "aws_s3_bucket" "screenshots" {
       tags
     ]
   }
+
+  tags = {
+    Name = var.s3_bucket_name
+  }
 }
 
-# 2. Allow public access
+# 2. Disable public access blocks so the bucket policy can work
 resource "aws_s3_bucket_public_access_block" "public_access" {
   bucket = aws_s3_bucket.screenshots.id
 
@@ -32,14 +36,19 @@ resource "aws_s3_bucket_public_access_block" "public_access" {
   restrict_public_buckets = false
 }
 
-# 3. Public read bucket policy
+# 3. Public read-only bucket policy (safe, minimal)
 resource "aws_s3_bucket_policy" "public_read" {
   bucket = aws_s3_bucket.screenshots.id
+
+  depends_on = [
+    aws_s3_bucket_public_access_block.public_access
+  ]
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
+        Sid       = "PublicReadGetObject"
         Effect    = "Allow"
         Principal = "*"
         Action    = "s3:GetObject"
