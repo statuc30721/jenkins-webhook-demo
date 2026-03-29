@@ -15,21 +15,29 @@ provider "aws" {
 resource "aws_s3_bucket" "screenshots" {
   bucket = var.s3_bucket_name
 
-  # Prevent Terraform from querying S3 features you don't use
   lifecycle {
-  ignore_changes = [
-    cors_rule,
-    lifecycle_rule,
-    logging,
-    object_lock_configuration,
-    replication_configuration,
-    server_side_encryption_configuration,
-    versioning,
-    website,
-    tags
-  ]
+    ignore_changes = [
+      cors_rule,
+      lifecycle_rule,
+      logging,
+      object_lock_configuration,
+      replication_configuration,
+      server_side_encryption_configuration,
+      versioning,
+      website,
+      tags
+    ]
+  }
 }
 
+# 1b. REQUIRED FOR TERRAFORM V5 — prevents lifecycle API calls
+resource "aws_s3_bucket_lifecycle_configuration" "screenshots" {
+  bucket = aws_s3_bucket.screenshots.id
+
+  rule {
+    id     = "disabled"
+    status = "Disabled"
+  }
 }
 
 # 2. Allow public access (assignment requirement)
