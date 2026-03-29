@@ -1,33 +1,38 @@
 pipeline {
     agent any
 
-    parameters {
-        booleanParam(name: 'APPLY', defaultValue: false, description: 'Apply Terraform changes')
+    environment {
+        AWS_REGION = "eu-central-1"
+        TF_IN_AUTOMATION = "true"
     }
 
     stages {
 
-        stage('Clean Workspace') {
+        stage('Verify AWS Identity') {
             steps {
                 sh '''
-                    echo "Cleaning Terraform workspace..."
-                    rm -f terraform.tfstate terraform.tfstate.backup
-                    rm -rf .terraform .terraform.lock.hcl
+                    echo "=== AWS Identity Check ==="
+                    aws sts get-caller-identity
+                    echo "=========================="
                 '''
             }
         }
 
-        stage('Checkout') {
+        stage('Refresh AWS Credentials') {
             steps {
-                checkout scm
+                sh '''
+                    echo "=== Refreshing Instance Profile Credentials ==="
+                    curl -s http://169.254.169.254/latest/meta-data/iam/security-credentials/
+                    echo "==============================================="
+                '''
             }
         }
 
         stage('Terraform Init') {
             steps {
                 sh '''
-                    echo "Initializing Terraform..."
-                    terraform init
+                    cd terraform
+                    terraform init -input=false
                 '''
             }
         }
@@ -35,22 +40,25 @@ pipeline {
         stage('Terraform Plan') {
             steps {
                 sh '''
-                    echo "Planning Terraform changes..."
-                    terraform plan -var-file="terraform.tfvars"
+                    cd terraform
+                    terraform plan -input=false
                 '''
             }
         }
 
         stage('Terraform Apply') {
-            when {
-                expression { return params.APPLY == true }
-            }
             steps {
                 sh '''
-                    echo "Applying Terraform changes..."
-                    terraform apply -auto-approve -var-file="terraform.tfvars"
+                    cd terraform
+                    terraform apply -auto-approve -input=false
                 '''
             }
+        }
+    }
+
+    post {
+        always {
+            sh 'echo "Pipeline completed."'
         }
     }
 }
