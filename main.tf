@@ -11,20 +11,11 @@ provider "aws" {
   region = var.region
 }
 
-# 1. Create or adopt the bucket
 resource "aws_s3_bucket" "screenshots" {
   bucket = var.s3_bucket_name
 
-  force_destroy = true
-
   lifecycle {
-    prevent_destroy       = false
-    create_before_destroy = true
-    ignore_changes = [
-      tags,
-      acl,
-      policy
-    ]
+    prevent_destroy = true
   }
 
   tags = {
@@ -32,7 +23,6 @@ resource "aws_s3_bucket" "screenshots" {
   }
 }
 
-# 2. Disable public access blocks so the bucket policy can work
 resource "aws_s3_bucket_public_access_block" "public_access" {
   bucket = aws_s3_bucket.screenshots.id
 
@@ -42,7 +32,6 @@ resource "aws_s3_bucket_public_access_block" "public_access" {
   restrict_public_buckets = false
 }
 
-# 3. Public read-only bucket policy
 resource "aws_s3_bucket_policy" "public_read" {
   bucket = aws_s3_bucket.screenshots.id
 
@@ -64,7 +53,6 @@ resource "aws_s3_bucket_policy" "public_read" {
   })
 }
 
-# 4. Upload screenshots + text files
 resource "aws_s3_object" "screenshots" {
   for_each = fileset("${path.module}/screenshots", "*")
 

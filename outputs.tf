@@ -1,6 +1,7 @@
-output "uploaded_screenshots" {
-  value = {
-    for k, v in aws_s3_object.screenshots :
-    k => v.key
-  }
+output "bucket_name" {
+  value = var.s3_bucket_name
+}
+
+output "bucket_arn" {
+  value = aws_s3_bucket.screenshots.arn
 }
