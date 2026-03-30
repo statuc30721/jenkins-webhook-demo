@@ -11,13 +11,19 @@ provider "aws" {
   region = var.region
 }
 
-# 1. Create the bucket
+# 1. Create or adopt the bucket
 resource "aws_s3_bucket" "screenshots" {
   bucket = var.s3_bucket_name
 
+  force_destroy = true
+
   lifecycle {
+    prevent_destroy       = false
+    create_before_destroy = true
     ignore_changes = [
-      tags
+      tags,
+      acl,
+      policy
     ]
   }
 
