@@ -19,6 +19,15 @@ pipeline {
             }
         }
 
+        stage('Terraform Plan') {
+            steps {
+                sh """
+                terraform plan -var="s3_bucket_name=${S3_BUCKET_NAME}" -out=tfplan.out
+                terraform show -no-color tfplan.out > tfplan.txt
+                """
+            }
+        }
+
         stage('Terraform Apply') {
             steps {
                 sh """
